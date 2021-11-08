@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.hisham.starterapp.di
+package com.hisham.bushar.di
 
-import com.hisham.starterapp.BuildConfig
-import com.hisham.starterapp.ext.addInterceptorIfDebug
+import com.hisham.bushar.BuildConfig
+import com.hisham.bushar.ext.addInterceptorIfDebug
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

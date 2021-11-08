@@ -1,4 +1,4 @@
-package com.hisham.starterapp.di
+package com.hisham.bushar.di
 
 import com.app.navigation.NavigationManager
 import dagger.Module

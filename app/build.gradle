@@ -8,7 +8,7 @@ android {
     compileSdk targets.compileSdk
 
     defaultConfig {
-        applicationId "com.hisham.starterapp"
+        applicationId "com.hisham.bushar"
         minSdk targets.minSdk
         targetSdk targets.targetSdk
         versionCode 1

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.hisham.starterapp
+package com.hisham.bushar
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -26,7 +26,7 @@ import com.app.home.domain.HomeState
 import com.app.home.presentation.HomeScreen
 import com.app.navigation.HomeDirection
 import com.app.navigation.NavigationManager
-import com.hisham.starterapp.ui.theme.StarterAppTheme
+import com.hisham.bushar.ui.theme.BusharAppTheme
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
@@ -40,7 +40,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         setContent {
-            StarterAppTheme {
+            BusharAppTheme {
                 val navController = rememberNavController()
 
                 NavHost(

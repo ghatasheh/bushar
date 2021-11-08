@@ -13,19 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.hisham.starterapp
+package com.hisham.bushar.ext
 
-import org.junit.Assert.assertEquals
-import org.junit.Test
+import com.hisham.bushar.BuildConfig
+import okhttp3.Interceptor
+import okhttp3.OkHttpClient
 
-/**
- * Example local unit test, which will execute on the development machine (host).
- *
- * See [testing documentation](http://d.android.com/tools/testing).
- */
-class ExampleUnitTest {
-    @Test
-    fun addition_isCorrect() {
-        assertEquals(4, 2 + 2)
+fun OkHttpClient.Builder.addInterceptorIfDebug(interceptor: Interceptor): OkHttpClient.Builder {
+    return when {
+        BuildConfig.DEBUG -> addInterceptor(interceptor)
+        else -> this
     }
 }
