@@ -18,7 +18,12 @@ package com.hisham.bushar
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.material.Scaffold
+import androidx.compose.material.Text
+import androidx.compose.material.TopAppBar
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -42,23 +47,43 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             BusharAppTheme {
-                val navController = rememberNavController()
+                HomeScaffold()
+            }
+        }
+    }
 
-                NavHost(
-                    navController = navController,
-                    startDestination = HomeDirection.Home.destination,
-                ) {
-                    composable(HomeDirection.Home.destination) {
-                        val vm: HomeViewModel = hiltViewModel()
-                        HomeScreen(vm, {})
-                    }
-                }
+    @Composable
+    private fun HomeScaffold() {
+        Scaffold(
+            topBar = {
+                TopAppBar(
+                    title = {
+                        Text(text = stringResource(id = R.string.app_name))
+                    },
+                )
+            },
+        ) {
+            HomeContentNavigation()
+        }
+    }
 
-                navigationManager.commands.collectAsState().value.also { command ->
-                    if (command.destination.isNotEmpty()) {
-                        navController.navigate(command.destination)
-                    }
-                }
+    @Composable
+    private fun HomeContentNavigation() {
+        val navController = rememberNavController()
+
+        NavHost(
+            navController = navController,
+            startDestination = HomeDirection.Home.destination,
+        ) {
+            composable(HomeDirection.Home.destination) {
+                val vm: HomeViewModel = hiltViewModel()
+                HomeScreen(vm, {})
+            }
+        }
+
+        navigationManager.commands.collectAsState().value.also { command ->
+            if (command.destination.isNotEmpty()) {
+                navController.navigate(command.destination)
             }
         }
     }
