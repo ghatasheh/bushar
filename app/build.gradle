@@ -31,7 +31,7 @@ android {
 
     buildTypes {
         all {
-            buildConfigField "String", "API_URL", "\"https://api.example.com/\""
+            buildConfigField "String", "API_URL", "\"https://api.themoviedb.org/3/\""
         }
 
         debug {

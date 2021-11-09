@@ -9,19 +9,20 @@ import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
-import com.app.home.domain.HomeState
 
 const val TAG_PROGRESS = "progress"
 
 @Composable
 fun HomeScreen(
-    state: HomeState,
+    vm: HomeViewModel,
 ) {
+    val state = vm.uiState.collectAsState().value
     when {
-        state.loading -> {
+        state.isLoading -> {
             Box(
                 modifier = Modifier
                     .fillMaxSize()
@@ -34,14 +35,22 @@ fun HomeScreen(
                 )
             }
         }
-        state.success == true -> {
+        state.movies.isNotEmpty() -> {
             Column {
                 Button(onClick = {}) {
                     Text("Test")
                 }
             }
         }
-        state.errorMessage != null -> {
+        state.error != null -> {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(color = MaterialTheme.colors.primary),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(text = "Something went wrong")
+            }
         }
     }
 }

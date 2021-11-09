@@ -19,11 +19,12 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.runtime.collectAsState
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.app.home.domain.HomeState
 import com.app.home.presentation.HomeScreen
+import com.app.home.presentation.HomeViewModel
 import com.app.navigation.HomeDirection
 import com.app.navigation.NavigationManager
 import com.hisham.bushar.ui.theme.BusharAppTheme
@@ -48,7 +49,8 @@ class MainActivity : ComponentActivity() {
                     startDestination = HomeDirection.Home.destination,
                 ) {
                     composable(HomeDirection.Home.destination) {
-                        HomeScreen(state = HomeState(loading = true))
+                        val vm: HomeViewModel = hiltViewModel()
+                        HomeScreen(vm)
                     }
                 }
 
