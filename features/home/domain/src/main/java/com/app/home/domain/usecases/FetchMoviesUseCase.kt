@@ -24,7 +24,7 @@ class FetchMoviesUseCase @Inject constructor(
             val posterUrl = if (it.posterPath.isNullOrEmpty()) {
                 null
             } else {
-                "http://image.tmdb.org/t/p/w500/${it.posterPath}"
+                "https://image.tmdb.org/t/p/w500${it.posterPath}"
             }
 
             MoviesListItemState(

@@ -50,7 +50,7 @@ class MainActivity : ComponentActivity() {
                 ) {
                     composable(HomeDirection.Home.destination) {
                         val vm: HomeViewModel = hiltViewModel()
-                        HomeScreen(vm)
+                        HomeScreen(vm, {})
                     }
                 }
 
