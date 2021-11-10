@@ -2,7 +2,6 @@ package com.hisham.bushar.home.domain.entities
 
 import com.google.gson.annotations.SerializedName
 
-
 data class MoviesResponse(
     @SerializedName("page")
     val page: Int,
@@ -131,4 +130,3 @@ data class SpokenLanguage(
     @SerializedName("name")
     val name: String
 )
-

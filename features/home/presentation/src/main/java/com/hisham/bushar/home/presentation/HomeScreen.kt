@@ -128,7 +128,6 @@ private fun MainContent(
                 item { ErrorContent { lazyPagingItems.retry() } }
             }
         }
-
     }
 }
 
@@ -163,7 +162,8 @@ fun MovieCard(
                         data = movie.coverUrl,
                         builder = {
                             crossfade(true)
-                        }),
+                        }
+                    ),
                     modifier = Modifier
                         .width(contentWidth)
                         .height(contentHeight),

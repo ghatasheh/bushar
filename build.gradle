@@ -62,7 +62,7 @@ subprojects {
             targetExclude('bin/**/*.kt')
 
             ktlint("0.42.1")
-            licenseHeaderFile rootProject.file('spotless/copyright.kt')
+//            licenseHeaderFile rootProject.file('spotless/copyright.kt')
         }
     }
 }

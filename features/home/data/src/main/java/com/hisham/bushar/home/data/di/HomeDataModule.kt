@@ -1,7 +1,7 @@
 package com.hisham.bushar.home.data.di
 
-import com.hisham.bushar.home.domain.api.MoviesRepository
 import com.hisham.bushar.home.data.MoviesRepositoryImpl
+import com.hisham.bushar.home.domain.api.MoviesRepository
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
