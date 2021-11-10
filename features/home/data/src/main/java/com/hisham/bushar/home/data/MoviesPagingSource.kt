@@ -2,8 +2,8 @@ package com.hisham.bushar.home.data
 
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
-import com.app.home.domain.entities.MovieItemState
-import com.app.home.domain.usecases.FetchMoviesUseCase
+import com.hisham.bushar.home.domain.states.MovieItemState
+import com.hisham.bushar.home.domain.usecases.FetchMoviesUseCase
 import retrofit2.HttpException
 import java.io.IOException
 import javax.inject.Inject

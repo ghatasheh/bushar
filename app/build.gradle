@@ -79,6 +79,7 @@ dependencies {
     // Libraries
     implementation project(path: ':libraries:navigation')
     implementation project(path: ':libraries:threading')
+    implementation project(path: ':libraries:design')
 
     // Jetpack
     implementation "androidx.lifecycle:lifecycle-extensions:$lifecycle_extensions_version"
@@ -100,6 +101,8 @@ dependencies {
     implementation "androidx.navigation:navigation-compose:$compose_navigation_version"
     implementation "androidx.hilt:hilt-navigation-compose:$compose_hilt_navigation_version"
 
+    implementation "io.coil-kt:coil-compose:$coil_version"
+
     // Kotlin
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutines_version"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutines_version"
@@ -114,6 +117,10 @@ dependencies {
     implementation "com.squareup.okhttp3:okhttp:$okhttp_version"
     implementation "com.squareup.okhttp3:logging-interceptor:$okhttp_version"
     implementation "com.google.code.gson:gson:$gson_version"
+
+    // Room
+    implementation "androidx.paging:paging-compose:$paging_compose_version"
+    implementation "androidx.paging:paging-runtime-ktx:$paging_version"
 
     // Test
     testImplementation 'junit:junit:4.+'

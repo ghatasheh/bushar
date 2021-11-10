@@ -1,7 +1,7 @@
 package com.hisham.bushar.home.data
 
-import com.app.home.domain.entities.MovieResponse
-import com.app.home.domain.entities.MoviesResponse
+import com.hisham.bushar.home.domain.entities.MovieResponse
+import com.hisham.bushar.home.domain.entities.MoviesResponse
 import retrofit2.http.GET
 import retrofit2.http.Query
 

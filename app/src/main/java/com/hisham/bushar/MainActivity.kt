@@ -28,11 +28,11 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.app.home.presentation.HomeScreen
-import com.app.home.presentation.HomeViewModel
-import com.app.navigation.HomeDirection
-import com.app.navigation.NavigationManager
-import com.hisham.bushar.ui.theme.BusharAppTheme
+import com.hisham.bushar.home.presentation.HomeScreen
+import com.hisham.bushar.home.presentation.HomeViewModel
+import com.hisham.bushar.navigation.HomeDirection
+import com.hisham.bushar.navigation.NavigationManager
+import com.hisham.bushar.design.BusharAppTheme
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 

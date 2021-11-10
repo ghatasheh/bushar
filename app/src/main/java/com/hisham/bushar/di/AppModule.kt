@@ -1,6 +1,6 @@
 package com.hisham.bushar.di
 
-import com.app.navigation.NavigationManager
+import com.hisham.bushar.navigation.NavigationManager
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
