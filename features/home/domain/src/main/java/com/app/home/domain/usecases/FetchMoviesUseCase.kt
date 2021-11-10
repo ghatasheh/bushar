@@ -2,24 +2,19 @@ package com.app.home.domain.usecases
 
 import com.app.home.domain.api.MoviesRepository
 import com.app.home.domain.entities.MovieListItemResponse
-import com.app.home.domain.entities.MoviesListItemState
-import com.app.home.domain.entities.MoviesListState
+import com.app.home.domain.entities.MovieItemState
 import javax.inject.Inject
 
 class FetchMoviesUseCase @Inject constructor(
     private val moviesRepository: MoviesRepository,
 ) {
+    suspend fun execute(page: Int): List<MovieItemState> {
+        val list = moviesRepository.fetchMovies(page)
 
-    suspend fun execute(): MoviesListState {
-        val list = moviesRepository.fetchMovies()
-        if (list.isEmpty()) {
-            return MoviesListState(isLoading = false, error = "Opps!")
-        }
-
-        return MoviesListState(isLoading = false, movies = toUiData(list))
+        return toUiData(list)
     }
 
-    private fun toUiData(list: List<MovieListItemResponse>): List<MoviesListItemState> {
+    private fun toUiData(list: List<MovieListItemResponse>): List<MovieItemState> {
         return list.map {
             val posterUrl = if (it.posterPath.isNullOrEmpty()) {
                 null
@@ -27,7 +22,7 @@ class FetchMoviesUseCase @Inject constructor(
                 "https://image.tmdb.org/t/p/w500${it.posterPath}"
             }
 
-            MoviesListItemState(
+            MovieItemState(
                 id = it.id,
                 name = it.title,
                 coverUrl = posterUrl,

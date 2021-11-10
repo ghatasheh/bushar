@@ -5,9 +5,11 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -20,84 +22,122 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.Card
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.MaterialTheme
+import androidx.compose.material.OutlinedButton
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.paging.LoadState
+import androidx.paging.compose.LazyPagingItems
+import androidx.paging.compose.collectAsLazyPagingItems
 import coil.compose.rememberImagePainter
-import com.app.home.domain.entities.MoviesListItemState
+import com.app.home.domain.entities.MovieItemState
+import com.hisham.bushar.home.presentation.R
 
 const val TAG_PROGRESS = "progress"
 
 @Composable
 fun HomeScreen(
     vm: HomeViewModel,
-    onClick: (MoviesListItemState) -> Unit,
+    onClick: (MovieItemState) -> Unit,
 ) {
-    val state = vm.uiState.collectAsState().value
-    when {
-        state.isLoading -> {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(color = MaterialTheme.colors.primary),
-                contentAlignment = Alignment.Center
-            ) {
-                CircularProgressIndicator(
-                    modifier = Modifier.testTag(TAG_PROGRESS),
-                    color = MaterialTheme.colors.secondary
-                )
+    val state = vm.moviesPagingFlow.collectAsLazyPagingItems()
+
+    MainContent(state, onClick = onClick)
+}
+
+@Composable
+private fun ErrorContent(
+    modifier: Modifier = Modifier,
+    onRetry: () -> Unit
+) {
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
+    ) {
+        Row(
+            modifier = modifier.padding(16.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = stringResource(id = R.string.error_message),
+                modifier = Modifier.weight(1f),
+                style = MaterialTheme.typography.subtitle1,
+                color = MaterialTheme.colors.primary
+            )
+
+            OutlinedButton(onClick = onRetry) {
+                Text(text = stringResource(id = R.string.retry))
             }
         }
-        state.movies.isNotEmpty() -> {
-            MainContent(state.movies, onClick = onClick)
-        }
-        state.error != null -> {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(color = MaterialTheme.colors.primary),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(text = "Something went wrong")
-            }
-        }
+    }
+}
+
+@Composable
+private fun LoadingContent() {
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
+    ) {
+        CircularProgressIndicator(
+            modifier = Modifier.testTag(TAG_PROGRESS),
+            color = MaterialTheme.colors.secondary
+        )
     }
 }
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun MainContent(
-    movies: List<MoviesListItemState>,
-    onClick: (MoviesListItemState) -> Unit,
+    lazyPagingItems: LazyPagingItems<MovieItemState>,
+    onClick: (MovieItemState) -> Unit,
 ) {
     val scrollState = rememberLazyListState()
     LazyVerticalGrid(
         modifier = Modifier
             .fillMaxWidth()
             .padding(2.dp),
-        cells = GridCells.Fixed(3),
+        cells = GridCells.Adaptive(120.dp),
         state = scrollState,
         contentPadding = PaddingValues(2.dp)
     ) {
-        items(movies.size) { index ->
-            MovieCard(movies[index], onClick = { onClick(movies[index]) })
+        items(lazyPagingItems.itemCount) { index ->
+            lazyPagingItems[index]?.let { movieItemState ->
+                MovieCard(movie = movieItemState, onClick = onClick)
+            }
         }
+
+        when {
+            lazyPagingItems.loadState.refresh is LoadState.Loading -> {
+                item { LoadingContent() }
+            }
+            lazyPagingItems.loadState.append is LoadState.Loading -> {
+                item { LoadingContent() }
+            }
+            lazyPagingItems.loadState.refresh is LoadState.Error -> {
+                item { ErrorContent { lazyPagingItems.retry() } }
+            }
+            lazyPagingItems.loadState.append is LoadState.Error -> {
+                item { ErrorContent { lazyPagingItems.retry() } }
+            }
+        }
+
     }
 }
 
 @Composable
 fun MovieCard(
-    movie: MoviesListItemState,
-    onClick: (MoviesListItemState) -> Unit
+    movie: MovieItemState,
+    onClick: (MovieItemState) -> Unit
 ) {
     Box(
         modifier = Modifier

@@ -7,9 +7,9 @@ import javax.inject.Inject
 class MoviesRemoteDataSource @Inject constructor(
     private val api: MoviesApi,
 ) {
-    suspend fun listPopularMovies(): MoviesResponse? {
+    suspend fun listPopularMovies(page: Int): MoviesResponse? {
         return try {
-            api.listPopularMovies()
+            api.listPopularMovies(page)
         } catch (e: Exception) {
             if (BuildConfig.DEBUG) {
                 println(e)
