@@ -9,6 +9,7 @@ import com.hisham.bushar.navigation.NavigationManager
 import com.hisham.bushar.threading.CoroutineDispatchers
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flowOn
 import javax.inject.Inject
 
 @HiltViewModel
@@ -19,6 +20,7 @@ class HomeViewModel @Inject constructor(
 ) : ViewModel() {
 
     val moviesPagingFlow: Flow<PagingData<MovieItemState>> = moviesPager.pager()
+        .flowOn(dispatcher.io)
         .cachedIn(viewModelScope)
 
     fun handleEvent(event: HomeEvent) {

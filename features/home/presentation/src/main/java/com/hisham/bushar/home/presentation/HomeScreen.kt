@@ -4,6 +4,8 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -18,22 +20,27 @@ import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.GridCells
 import androidx.compose.foundation.lazy.LazyVerticalGrid
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.Card
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.OutlinedButton
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.flowWithLifecycle
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
@@ -47,7 +54,12 @@ fun HomeScreen(
     vm: HomeViewModel,
     onClick: (MovieItemState) -> Unit,
 ) {
-    val state = vm.moviesPagingFlow.collectAsLazyPagingItems()
+    val lifecycleOwner = LocalLifecycleOwner.current
+    val moviesFlowLifecycleAware = remember(vm.moviesPagingFlow, lifecycleOwner) {
+        vm.moviesPagingFlow.flowWithLifecycle(lifecycleOwner.lifecycle, Lifecycle.State.STARTED)
+    }
+
+    val state = moviesFlowLifecycleAware.collectAsLazyPagingItems()
 
     MainContent(state, onClick = onClick)
 }
@@ -99,14 +111,16 @@ private fun MainContent(
     lazyPagingItems: LazyPagingItems<MovieItemState>,
     onClick: (MovieItemState) -> Unit,
 ) {
-    val scrollState = rememberLazyListState()
+    val lazyListState = rememberLazyListState()
+    val scrollState = rememberScrollState()
     LazyVerticalGrid(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(2.dp),
+            .padding(2.dp)
+            .scrollable(state = scrollState, orientation = Orientation.Vertical),
         cells = GridCells.Adaptive(120.dp),
-        state = scrollState,
-        contentPadding = PaddingValues(2.dp)
+        state = lazyListState,
+        contentPadding = PaddingValues(horizontal = 8.dp, vertical = 0.dp)
     ) {
         items(lazyPagingItems.itemCount) { index ->
             lazyPagingItems[index]?.let { movieItemState ->
@@ -175,7 +189,7 @@ fun MovieCard(
                     text = movie.name,
                     modifier = Modifier
                         .width(contentWidth)
-                        .padding(3.dp),
+                        .padding(2.dp),
                     textAlign = TextAlign.Center,
                     style = MaterialTheme.typography.caption,
                     color = MaterialTheme.colors.primary,
