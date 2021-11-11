@@ -34,3 +34,7 @@ include ':features:home:data'
 include ':features:home:domain'
 include ':features:home:presentation'
 
+// Favourite
+include ':features:favourite:domain'
+include ':features:favourite:data'
+include ':features:favourite:presentation'

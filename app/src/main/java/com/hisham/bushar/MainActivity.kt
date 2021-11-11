@@ -36,6 +36,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.hisham.bushar.design.BusharAppTheme
+import com.hisham.bushar.favourite.presentation.FavouriteScreen
 import com.hisham.bushar.home.presentation.HomeScreen
 import com.hisham.bushar.home.presentation.HomeViewModel
 import com.hisham.bushar.navigation.HomeDirection
@@ -115,7 +116,7 @@ class MainActivity : ComponentActivity() {
             }
 
             composable(HomeDirection.Favourite.destination) {
-                Text(text = "Favourite")
+                FavouriteScreen()
             }
         }
 

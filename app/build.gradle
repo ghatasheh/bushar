@@ -76,6 +76,10 @@ dependencies {
     implementation project(path: ':features:home:presentation')
     implementation project(path: ':features:home:domain')
 
+    implementation project(path: ':features:favourite:domain')
+    implementation project(path: ':features:favourite:data')
+    implementation project(path: ':features:favourite:presentation')
+
     // Libraries
     implementation project(path: ':libraries:navigation')
     implementation project(path: ':libraries:threading')

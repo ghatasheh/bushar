@@ -1,0 +1,16 @@
+apply from: "$rootDir/config/module/feature/presentation.gradle"
+
+dependencies {
+    implementation project(path: ':features:favourite:data')
+    implementation project(path: ':features:favourite:domain')
+    implementation project(path: ':libraries:threading')
+    implementation project(path: ':libraries:design')
+
+    // UI
+    implementation "com.google.android.material:material:$material_version"
+    implementation "io.coil-kt:coil-compose:$coil_version"
+
+    // Room
+    implementation "androidx.paging:paging-compose:$paging_compose_version"
+    implementation "androidx.paging:paging-runtime-ktx:$paging_version"
+}
