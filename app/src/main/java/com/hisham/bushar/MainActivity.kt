@@ -18,20 +18,28 @@ package com.hisham.bushar
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.material.BottomNavigation
+import androidx.compose.material.BottomNavigationItem
+import androidx.compose.material.Icon
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.material.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.hisham.bushar.design.BusharAppTheme
 import com.hisham.bushar.home.presentation.HomeScreen
 import com.hisham.bushar.home.presentation.HomeViewModel
 import com.hisham.bushar.navigation.HomeDirection
+import com.hisham.bushar.navigation.NavigationBarItems
 import com.hisham.bushar.navigation.NavigationManager
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -54,6 +62,8 @@ class MainActivity : ComponentActivity() {
 
     @Composable
     private fun HomeScaffold() {
+        val navController = rememberNavController()
+
         Scaffold(
             topBar = {
                 TopAppBar(
@@ -62,15 +72,39 @@ class MainActivity : ComponentActivity() {
                     },
                 )
             },
+            bottomBar = { BottomBar(navController) }
         ) {
-            HomeContentNavigation()
+            HomeContentNavigation(navController)
         }
     }
 
     @Composable
-    private fun HomeContentNavigation() {
-        val navController = rememberNavController()
+    private fun BottomBar(navController: NavHostController) {
+        val navBackStackEntry by navController.currentBackStackEntryAsState()
+        val currentRoute = navBackStackEntry?.destination?.route
 
+        BottomNavigation {
+
+            NavigationBarItems.allItems.forEach {
+                BottomNavigationItem(
+                    selected = currentRoute == it.route.destination,
+                    icon = {
+                        Icon(
+                            imageVector = it.icon,
+                            contentDescription = stringResource(id = it.title),
+                        )
+                    },
+                    selectedContentColor = Color.White,
+                    unselectedContentColor = Color.White.copy(0.4f),
+                    alwaysShowLabel = true,
+                    label = { Text(text = stringResource(id = it.title)) },
+                    onClick = { navigationManager.navigate(it.route) })
+            }
+        }
+    }
+
+    @Composable
+    private fun HomeContentNavigation(navController: NavHostController) {
         NavHost(
             navController = navController,
             startDestination = HomeDirection.Home.destination,
@@ -79,11 +113,29 @@ class MainActivity : ComponentActivity() {
                 val vm: HomeViewModel = hiltViewModel()
                 HomeScreen(vm) {}
             }
+
+            composable(HomeDirection.Favourite.destination) {
+                Text(text = "Favourite")
+            }
         }
 
         navigationManager.commands.collectAsState().value.also { command ->
             if (command.destination.isNotEmpty()) {
-                navController.navigate(command.destination)
+                navController.navigate(command.destination) {
+                    // Pop up to the start destination of the graph to
+                    // avoid building up a large stack of destinations
+                    // on the back stack as users select items
+                    navController.graph.startDestinationRoute?.let { route ->
+                        popUpTo(route) {
+                            saveState = true
+                        }
+                    }
+                    // Avoid multiple copies of the same destination when
+                    // re-selecting the same item
+                    launchSingleTop = true
+                    // Restore state when re-selecting a previously selected item
+                    restoreState = true
+                }
             }
         }
     }

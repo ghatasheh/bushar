@@ -11,4 +11,11 @@ object HomeDirection {
         override val destination: String
             get() = "home"
     }
+
+    val Favourite = object : NavigationCommand {
+        override val arguments: List<NamedNavArgument>
+            get() = emptyList()
+        override val destination: String
+            get() = "favourite"
+    }
 }
