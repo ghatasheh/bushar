@@ -2,6 +2,7 @@ package com.hisham.bushar.home.presentation
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.Orientation
@@ -18,6 +19,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.GridCells
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.LazyVerticalGrid
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
@@ -113,6 +115,50 @@ private fun MainContent(
 ) {
     val lazyListState = rememberLazyListState()
     val scrollState = rememberScrollState()
+
+    val isListEmpty = lazyPagingItems.loadState.refresh is LoadState.NotLoading && lazyPagingItems.itemCount == 0
+    val isLoading = lazyPagingItems.loadState.source.refresh is LoadState.Loading
+    val isError = lazyPagingItems.loadState.source.refresh is LoadState.Error
+    val showGrid = !isListEmpty
+
+    // error from mediator or paging
+    val errorState = lazyPagingItems.loadState.source.append as? LoadState.Error
+        ?: lazyPagingItems.loadState.source.prepend as? LoadState.Error
+        ?: lazyPagingItems.loadState.append as? LoadState.Error
+        ?: lazyPagingItems.loadState.prepend as? LoadState.Error
+    when {
+        isListEmpty -> {
+            LoadingContent()
+        }
+        isLoading -> {
+            LoadingContent()
+        }
+        isError -> {
+            ErrorContent {
+                lazyPagingItems.retry()
+            }
+        }
+        showGrid -> {
+            GridLayout(
+                scrollState,
+                lazyListState,
+                lazyPagingItems,
+                onClick
+            )
+        }
+    }
+
+
+}
+
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+private fun GridLayout(
+    scrollState: ScrollState,
+    lazyListState: LazyListState,
+    lazyPagingItems: LazyPagingItems<MovieItemState>,
+    onClick: (MovieItemState) -> Unit
+) {
     LazyVerticalGrid(
         modifier = Modifier
             .fillMaxWidth()
@@ -129,9 +175,6 @@ private fun MainContent(
         }
 
         when {
-            lazyPagingItems.loadState.refresh is LoadState.Loading -> {
-                item { LoadingContent() }
-            }
             lazyPagingItems.loadState.append is LoadState.Loading -> {
                 item { LoadingContent() }
             }
