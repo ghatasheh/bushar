@@ -16,7 +16,7 @@ class MoviesPager @Inject constructor(
     @OptIn(ExperimentalPagingApi::class)
     fun pager(): Flow<PagingData<MovieItemState>> {
         return Pager(
-            config = PagingConfig(pageSize = 50, enablePlaceholders = false),
+            config = PagingConfig(pageSize = 24, enablePlaceholders = false),
             pagingSourceFactory = { moviesPagingSource }
         ).flow
     }

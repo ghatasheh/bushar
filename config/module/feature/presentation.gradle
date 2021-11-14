@@ -6,16 +6,6 @@ android {
         compose true
     }
 
-    kotlinOptions {
-        useIR = true
-        jvmTarget = JavaVersion.VERSION_1_8.toString()
-    }
-
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
-    }
-
     composeOptions {
         kotlinCompilerExtensionVersion compose_version
     }

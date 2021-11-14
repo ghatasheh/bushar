@@ -1,5 +1,6 @@
 package com.hisham.bushar.home.presentation
 
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.ScrollState
@@ -7,12 +8,9 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.scrollable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -24,19 +22,23 @@ import androidx.compose.foundation.lazy.LazyVerticalGrid
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.Card
-import androidx.compose.material.CircularProgressIndicator
+import androidx.compose.material.Icon
+import androidx.compose.material.IconToggleButton
 import androidx.compose.material.MaterialTheme
-import androidx.compose.material.OutlinedButton
 import androidx.compose.material.Text
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalLifecycleOwner
-import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -47,64 +49,29 @@ import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import coil.compose.rememberImagePainter
+import com.hisham.bushar.design.widgets.ErrorContent
+import com.hisham.bushar.design.widgets.LoadingContent
 import com.hisham.bushar.home.domain.states.MovieItemState
-
-const val TAG_PROGRESS = "progress"
 
 @Composable
 fun HomeScreen(
-    vm: HomeViewModel,
-    onClick: (MovieItemState) -> Unit,
+    viewModel: HomeViewModel,
 ) {
     val lifecycleOwner = LocalLifecycleOwner.current
-    val moviesFlowLifecycleAware = remember(vm.moviesPagingFlow, lifecycleOwner) {
-        vm.moviesPagingFlow.flowWithLifecycle(lifecycleOwner.lifecycle, Lifecycle.State.STARTED)
+    val moviesFlowLifecycleAware = remember(viewModel.moviesPagingFlow, lifecycleOwner) {
+        viewModel.moviesPagingFlow.flowWithLifecycle(
+            lifecycleOwner.lifecycle,
+            Lifecycle.State.STARTED
+        )
     }
 
     val state = moviesFlowLifecycleAware.collectAsLazyPagingItems()
 
-    MainContent(state, onClick = onClick)
-}
-
-@Composable
-private fun ErrorContent(
-    modifier: Modifier = Modifier,
-    onRetry: () -> Unit
-) {
-    Box(
-        modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center
-    ) {
-        Row(
-            modifier = modifier.padding(16.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = stringResource(id = R.string.error_message),
-                modifier = Modifier.weight(1f),
-                style = MaterialTheme.typography.subtitle1,
-                color = MaterialTheme.colors.primary
-            )
-
-            OutlinedButton(onClick = onRetry) {
-                Text(text = stringResource(id = R.string.retry))
-            }
-        }
-    }
-}
-
-@Composable
-private fun LoadingContent() {
-    Box(
-        modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center
-    ) {
-        CircularProgressIndicator(
-            modifier = Modifier.testTag(TAG_PROGRESS),
-            color = MaterialTheme.colors.secondary
-        )
-    }
+    MainContent(
+        lazyPagingItems = state,
+        onClick = { viewModel.handleAction(HomeAction.OnMovieClicked(it)) },
+        onFavouriteClick = { viewModel.handleAction(HomeAction.OnFavouriteClicked(it)) },
+    )
 }
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -112,6 +79,7 @@ private fun LoadingContent() {
 private fun MainContent(
     lazyPagingItems: LazyPagingItems<MovieItemState>,
     onClick: (MovieItemState) -> Unit,
+    onFavouriteClick: (MovieItemState) -> Unit,
 ) {
     val lazyListState = rememberLazyListState()
     val scrollState = rememberScrollState()
@@ -143,8 +111,9 @@ private fun MainContent(
                 scrollState,
                 lazyListState,
                 lazyPagingItems,
-                onClick
-            )
+                onClick,
+                onFavouriteClick
+            ) { lazyPagingItems.refresh() }
         }
     }
 
@@ -157,7 +126,9 @@ private fun GridLayout(
     scrollState: ScrollState,
     lazyListState: LazyListState,
     lazyPagingItems: LazyPagingItems<MovieItemState>,
-    onClick: (MovieItemState) -> Unit
+    onClick: (MovieItemState) -> Unit,
+    onFavouriteClick: (MovieItemState) -> Unit,
+    refresh: () -> Unit,
 ) {
     LazyVerticalGrid(
         modifier = Modifier
@@ -170,7 +141,12 @@ private fun GridLayout(
     ) {
         items(lazyPagingItems.itemCount) { index ->
             lazyPagingItems[index]?.let { movieItemState ->
-                MovieCard(movie = movieItemState, onClick = onClick)
+                MovieCard(
+                    movie = movieItemState,
+                    onClick = onClick,
+                    onFavouriteClick = onFavouriteClick,
+                    refresh
+                )
             }
         }
 
@@ -191,7 +167,9 @@ private fun GridLayout(
 @Composable
 fun MovieCard(
     movie: MovieItemState,
-    onClick: (MovieItemState) -> Unit
+    onClick: (MovieItemState) -> Unit,
+    onFavouriteClick: (MovieItemState) -> Unit,
+    refresh: () -> Unit
 ) {
     Box(
         modifier = Modifier
@@ -214,19 +192,43 @@ fun MovieCard(
                 val contentWidth = 100.dp
                 val contentHeight = 140.dp
 
-                Image(
-                    painter = rememberImagePainter(
-                        data = movie.coverUrl,
-                        builder = {
-                            crossfade(true)
-                        }
-                    ),
+                Box(
                     modifier = Modifier
                         .width(contentWidth)
-                        .height(contentHeight),
-                    contentScale = ContentScale.FillWidth,
-                    contentDescription = movie.name
-                )
+                        .height(contentHeight)
+                ) {
+                    Image(
+                        painter = rememberImagePainter(
+                            data = movie.coverUrl,
+                            builder = {
+                                crossfade(true)
+                            }
+                        ),
+                        modifier = Modifier
+                            .width(contentWidth)
+                            .height(contentHeight),
+                        contentScale = ContentScale.FillWidth,
+                        contentDescription = movie.name
+                    )
+
+                    var checked by remember { mutableStateOf(movie.isFavourite) }
+                    IconToggleButton(
+                        modifier = Modifier.align(Alignment.TopEnd),
+                        checked = checked,
+                        onCheckedChange = {
+                            movie.isFavourite = it
+                            onFavouriteClick(movie)
+                            checked = it
+                        }
+                    ) {
+                        val tint by animateColorAsState(if (checked) Color(0xFFEC407A) else Color(0xFFB0BEC5))
+                        Icon(
+                            imageVector = Icons.Filled.Favorite,
+                            contentDescription = stringResource(id = R.string.add_to_favourite),
+                            tint = tint
+                        )
+                    }
+                }
 
                 Text(
                     text = movie.name,

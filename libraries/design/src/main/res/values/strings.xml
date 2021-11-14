@@ -2,5 +2,4 @@
 <resources>
     <string name="error_message">Something went wrong! Please try again</string>
     <string name="retry">Try again</string>
-    <string name="add_to_favourite">Add to favourite</string>
 </resources>

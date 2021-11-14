@@ -4,4 +4,5 @@ data class MovieItemState(
     val id: Int,
     val name: String,
     val coverUrl: String?,
+    var isFavourite: Boolean = false,
 )

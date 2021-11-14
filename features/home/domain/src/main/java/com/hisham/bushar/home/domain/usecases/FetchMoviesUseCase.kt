@@ -1,20 +1,26 @@
 package com.hisham.bushar.home.domain.usecases
 
 import com.hisham.bushar.home.domain.api.MoviesRepository
+import com.hisham.bushar.home.domain.delegates.FavouriteDelegate
 import com.hisham.bushar.home.domain.entities.MovieListItemResponse
 import com.hisham.bushar.home.domain.states.MovieItemState
 import javax.inject.Inject
 
 class FetchMoviesUseCase @Inject constructor(
     private val moviesRepository: MoviesRepository,
+    private val favouriteDelegate: FavouriteDelegate,
 ) {
     suspend fun execute(page: Int): List<MovieItemState> {
         val list = moviesRepository.fetchMovies(page)
+        val ids = favouriteDelegate.getFavouredIds()
 
-        return toUiData(list)
+        return toUiData(list, ids)
     }
 
-    private fun toUiData(list: List<MovieListItemResponse>): List<MovieItemState> {
+    private fun toUiData(
+        list: List<MovieListItemResponse>,
+        ids: List<Int>
+    ): List<MovieItemState> {
         return list.map {
             val posterUrl = if (it.posterPath.isNullOrEmpty()) {
                 null
@@ -26,6 +32,7 @@ class FetchMoviesUseCase @Inject constructor(
                 id = it.id,
                 name = it.title,
                 coverUrl = posterUrl,
+                isFavourite = ids.contains(it.id)
             )
         }
     }
