@@ -23,4 +23,9 @@ dependencies {
 
     // Room
     implementation "androidx.paging:paging-runtime-ktx:$paging_version"
+
+    testImplementation project(path: ':testing:common')
+    testImplementation 'androidx.test:core:1.4.0'
+    testImplementation "io.mockk:mockk:1.12.0"
+    testImplementation "com.google.truth:truth:1.1.3"
 }

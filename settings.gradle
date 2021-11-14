@@ -27,6 +27,9 @@ include ':libraries:navigation'
 include ':libraries:threading'
 include ':libraries:design'
 
+// Testing
+include ':testing:common'
+
 // Features
 
 // Home

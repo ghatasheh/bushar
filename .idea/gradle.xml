@@ -24,6 +24,8 @@
             <option value="$PROJECT_DIR$/libraries/design" />
             <option value="$PROJECT_DIR$/libraries/navigation" />
             <option value="$PROJECT_DIR$/libraries/threading" />
+            <option value="$PROJECT_DIR$/testing" />
+            <option value="$PROJECT_DIR$/testing/common" />
           </set>
         </option>
         <option name="resolveModulePerSourceSet" value="false" />
