@@ -1,6 +1,5 @@
 package com.hisham.bushar.home.data
 
-import com.google.common.truth.Truth
 import com.google.common.truth.Truth.assertThat
 import com.hisham.bushar.home.domain.entities.MovieListItemResponse
 import com.hisham.bushar.home.domain.entities.MoviesResponse
@@ -24,7 +23,7 @@ internal class MoviesRepositoryImplTest {
             100
         )
 
-        coEvery {  moviesRemoteDataSource.listPopularMovies(1) } returns response
+        coEvery { moviesRemoteDataSource.listPopularMovies(1) } returns response
 
         val result = repository.fetchMovies(1)
 
@@ -34,7 +33,7 @@ internal class MoviesRepositoryImplTest {
 
     @Test
     fun `test fetch movies returns empty list when response is null`() = runBlocking {
-        coEvery {  moviesRemoteDataSource.listPopularMovies(1) } returns null
+        coEvery { moviesRemoteDataSource.listPopularMovies(1) } returns null
 
         val result = repository.fetchMovies(1)
 

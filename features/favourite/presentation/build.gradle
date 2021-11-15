@@ -5,6 +5,7 @@ dependencies {
     implementation project(path: ':features:favourite:domain')
     implementation project(path: ':libraries:threading')
     implementation project(path: ':libraries:design')
+    implementation project(path: ':common:compose-ui')
 
     // UI
     implementation "com.google.android.material:material:$material_version"

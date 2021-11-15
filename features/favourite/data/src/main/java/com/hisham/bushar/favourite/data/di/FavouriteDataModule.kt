@@ -2,10 +2,10 @@ package com.hisham.bushar.favourite.data.di
 
 import android.content.Context
 import androidx.room.Room
-import com.hisham.bushar.favourite.domain.FavouriteRepository
 import com.hisham.bushar.favourite.data.FavouriteRepositoryImpl
 import com.hisham.bushar.favourite.data.database.FavouriteDao
 import com.hisham.bushar.favourite.data.database.FavouriteDatabase
+import com.hisham.bushar.favourite.domain.FavouriteRepository
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
@@ -20,14 +20,14 @@ abstract class FavouriteDataModule {
 
     @Binds
     @Singleton
-    abstract fun bindsFavouriteRepository(impl: FavouriteRepositoryImpl) : FavouriteRepository
+    abstract fun bindsFavouriteRepository(impl: FavouriteRepositoryImpl): FavouriteRepository
 
     companion object {
         @Provides
         @Singleton
         fun provideFavouriteDatabase(
             @ApplicationContext context: Context,
-        ) : FavouriteDatabase {
+        ): FavouriteDatabase {
             return Room.databaseBuilder(
                 context,
                 FavouriteDatabase::class.java, "favourites"
@@ -38,7 +38,7 @@ abstract class FavouriteDataModule {
         @Singleton
         fun provideFavouriteDao(
             database: FavouriteDatabase,
-        ) : FavouriteDao {
+        ): FavouriteDao {
             return database.favouriteDao()
         }
     }

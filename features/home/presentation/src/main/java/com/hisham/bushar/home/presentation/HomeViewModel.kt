@@ -27,7 +27,6 @@ class HomeViewModel @Inject constructor(
     fun handleAction(action: HomeAction) {
         when (action) {
             is HomeAction.OnMovieClicked -> {
-
             }
             is HomeAction.OnFavouriteClicked -> {
                 handleFavouriteToggle(action.state)

@@ -6,6 +6,7 @@ buildscript {
         compose_version = '1.0.5'
         compose_navigation_version = '2.4.0-beta02'
         compose_hilt_navigation_version = "1.0.0-alpha03"
+        compose_accompanist_version = '0.21.2-beta'
         activity_compose = '1.4.0'
         viewmodel_compose = '2.4.0'
         core_ktx_version = '1.7.0'
@@ -28,7 +29,7 @@ buildscript {
 
         coroutines_version = '1.5.2'
 
-        dagger_version = '2.39.1'
+        dagger_version = '2.40'
 
         retrofit2_version = "2.9.0"
         okhttp_version = "4.9.2"

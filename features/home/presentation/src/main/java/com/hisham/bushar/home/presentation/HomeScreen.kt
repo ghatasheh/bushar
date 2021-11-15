@@ -38,17 +38,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.flowWithLifecycle
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import coil.compose.rememberImagePainter
+import com.hisham.bushar.common.compose.rememberFlowWithLifecycle
 import com.hisham.bushar.design.widgets.ErrorContent
 import com.hisham.bushar.design.widgets.LoadingContent
 import com.hisham.bushar.home.domain.states.MovieItemState
@@ -57,15 +55,8 @@ import com.hisham.bushar.home.domain.states.MovieItemState
 fun HomeScreen(
     viewModel: HomeViewModel,
 ) {
-    val lifecycleOwner = LocalLifecycleOwner.current
-    val moviesFlowLifecycleAware = remember(viewModel.moviesPagingFlow, lifecycleOwner) {
-        viewModel.moviesPagingFlow.flowWithLifecycle(
-            lifecycleOwner.lifecycle,
-            Lifecycle.State.STARTED
-        )
-    }
-
-    val state = moviesFlowLifecycleAware.collectAsLazyPagingItems()
+    val state = rememberFlowWithLifecycle(viewModel.moviesPagingFlow)
+        .collectAsLazyPagingItems()
 
     MainContent(
         lazyPagingItems = state,
@@ -113,11 +104,9 @@ private fun MainContent(
                 lazyPagingItems,
                 onClick,
                 onFavouriteClick
-            ) { lazyPagingItems.refresh() }
+            )
         }
     }
-
-
 }
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -128,7 +117,6 @@ private fun GridLayout(
     lazyPagingItems: LazyPagingItems<MovieItemState>,
     onClick: (MovieItemState) -> Unit,
     onFavouriteClick: (MovieItemState) -> Unit,
-    refresh: () -> Unit,
 ) {
     LazyVerticalGrid(
         modifier = Modifier
@@ -144,8 +132,7 @@ private fun GridLayout(
                 MovieCard(
                     movie = movieItemState,
                     onClick = onClick,
-                    onFavouriteClick = onFavouriteClick,
-                    refresh
+                    onFavouriteClick = onFavouriteClick
                 )
             }
         }
@@ -169,7 +156,6 @@ fun MovieCard(
     movie: MovieItemState,
     onClick: (MovieItemState) -> Unit,
     onFavouriteClick: (MovieItemState) -> Unit,
-    refresh: () -> Unit
 ) {
     Box(
         modifier = Modifier

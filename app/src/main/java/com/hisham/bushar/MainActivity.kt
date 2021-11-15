@@ -95,9 +95,9 @@ class MainActivity : ComponentActivity() {
                     unselectedContentColor = Color.White.copy(0.4f),
                     alwaysShowLabel = true,
                     label = { Text(text = stringResource(id = it.title)) },
-                    onClick = { navigationManager.navigate(it.route) })
+                    onClick = { navigationManager.navigate(it.route) }
+                )
             }
         }
     }
-
 }

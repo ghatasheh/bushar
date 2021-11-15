@@ -29,6 +29,4 @@ sealed class NavigationBarItems(
             Favourite,
         )
     }
-
-
 }
