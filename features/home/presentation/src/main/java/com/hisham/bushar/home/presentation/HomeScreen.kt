@@ -3,29 +3,18 @@ package com.hisham.bushar.home.presentation
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.Orientation
-import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.foundation.lazy.GridCells
-import androidx.compose.foundation.lazy.LazyListState
-import androidx.compose.foundation.lazy.LazyVerticalGrid
-import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.Card
 import androidx.compose.material.Icon
 import androidx.compose.material.IconToggleButton
 import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.runtime.Composable
@@ -39,13 +28,15 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import coil.compose.rememberImagePainter
+import com.hisham.bushar.common.compose.Layout
+import com.hisham.bushar.common.compose.Placeholder
+import com.hisham.bushar.common.compose.bodyWidth
+import com.hisham.bushar.common.compose.itemsInGrid
 import com.hisham.bushar.common.compose.rememberFlowWithLifecycle
 import com.hisham.bushar.design.widgets.ErrorContent
 import com.hisham.bushar.design.widgets.LoadingContent
@@ -72,10 +63,8 @@ private fun MainContent(
     onClick: (MovieItemState) -> Unit,
     onFavouriteClick: (MovieItemState) -> Unit,
 ) {
-    val lazyListState = rememberLazyListState()
-    val scrollState = rememberScrollState()
-
-    val isListEmpty = lazyPagingItems.loadState.refresh is LoadState.NotLoading && lazyPagingItems.itemCount == 0
+    val isListEmpty =
+        lazyPagingItems.loadState.refresh is LoadState.NotLoading && lazyPagingItems.itemCount == 0
     val isLoading = lazyPagingItems.loadState.source.refresh is LoadState.Loading
     val isError = lazyPagingItems.loadState.source.refresh is LoadState.Error
     val showGrid = !isListEmpty
@@ -98,54 +87,56 @@ private fun MainContent(
             }
         }
         showGrid -> {
-            GridLayout(
-                scrollState,
-                lazyListState,
-                lazyPagingItems,
-                onClick,
-                onFavouriteClick
+            MoviesGrid(
+                lazyPagingItems = lazyPagingItems,
+                onClick = onClick,
+                onFavouriteClick = onFavouriteClick,
             )
         }
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
-private fun GridLayout(
-    scrollState: ScrollState,
-    lazyListState: LazyListState,
+fun MoviesGrid(
+    modifier: Modifier = Modifier,
     lazyPagingItems: LazyPagingItems<MovieItemState>,
     onClick: (MovieItemState) -> Unit,
     onFavouriteClick: (MovieItemState) -> Unit,
 ) {
-    LazyVerticalGrid(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(2.dp)
-            .scrollable(state = scrollState, orientation = Orientation.Vertical),
-        cells = GridCells.Adaptive(120.dp),
-        state = lazyListState,
-        contentPadding = PaddingValues(horizontal = 8.dp, vertical = 0.dp)
+    val columns = Layout.columns
+    val bodyMargin = Layout.bodyMargin
+    val gutter = Layout.gutter
+
+    LazyColumn(
+        modifier = modifier
+            .bodyWidth()
+            .fillMaxHeight(),
     ) {
-        items(lazyPagingItems.itemCount) { index ->
-            lazyPagingItems[index]?.let { movieItemState ->
+        itemsInGrid(
+            lazyPagingItems = lazyPagingItems,
+            columns = columns / 2,
+            contentPadding = PaddingValues(horizontal = bodyMargin, vertical = gutter),
+            verticalItemPadding = gutter,
+            horizontalItemPadding = gutter,
+        ) { movieItemState ->
+            val mod = Modifier
+                .aspectRatio(2 / 3f)
+                .fillMaxWidth()
+            if (movieItemState != null) {
                 MovieCard(
                     movie = movieItemState,
                     onClick = onClick,
-                    onFavouriteClick = onFavouriteClick
+                    onFavouriteClick = onFavouriteClick,
+                    modifier = mod,
                 )
+            } else {
+                Placeholder(mod)
             }
         }
 
-        when {
-            lazyPagingItems.loadState.append is LoadState.Loading -> {
-                item { LoadingContent() }
-            }
-            lazyPagingItems.loadState.refresh is LoadState.Error -> {
-                item { ErrorContent { lazyPagingItems.retry() } }
-            }
-            lazyPagingItems.loadState.append is LoadState.Error -> {
-                item { ErrorContent { lazyPagingItems.retry() } }
+        if (lazyPagingItems.loadState.append == LoadState.Loading) {
+            item {
+                LoadingContent()
             }
         }
     }
@@ -153,79 +144,54 @@ private fun GridLayout(
 
 @Composable
 fun MovieCard(
+    modifier: Modifier = Modifier,
     movie: MovieItemState,
     onClick: (MovieItemState) -> Unit,
     onFavouriteClick: (MovieItemState) -> Unit,
 ) {
-    Box(
-        modifier = Modifier
-            .wrapContentSize()
-            .padding(8.dp)
+    Card(
+        modifier = modifier
+            .border(1.dp, Color.Gray, shape = MaterialTheme.shapes.small)
+            .shadow(4.dp)
+            .clickable { onClick(movie) },
+        shape = MaterialTheme.shapes.small,
+        elevation = 8.dp,
+        backgroundColor = MaterialTheme.colors.background,
     ) {
-        Card(
-            modifier = Modifier
-                .border(1.dp, Color.Gray, shape = MaterialTheme.shapes.small)
-                .shadow(4.dp),
-            shape = MaterialTheme.shapes.small,
-            elevation = 8.dp,
-            backgroundColor = MaterialTheme.colors.background,
+        Box(
+            modifier = modifier
         ) {
-            Column(
-                modifier = Modifier
-                    .clickable(onClick = { onClick(movie) })
-                    .wrapContentSize()
-            ) {
-                val contentWidth = 100.dp
-                val contentHeight = 140.dp
-
-                Box(
-                    modifier = Modifier
-                        .width(contentWidth)
-                        .height(contentHeight)
-                ) {
-                    Image(
-                        painter = rememberImagePainter(
-                            data = movie.coverUrl,
-                            builder = {
-                                crossfade(true)
-                            }
-                        ),
-                        modifier = Modifier
-                            .width(contentWidth)
-                            .height(contentHeight),
-                        contentScale = ContentScale.FillWidth,
-                        contentDescription = movie.name
-                    )
-
-                    var checked by remember { mutableStateOf(movie.isFavourite) }
-                    IconToggleButton(
-                        modifier = Modifier.align(Alignment.TopEnd),
-                        checked = checked,
-                        onCheckedChange = {
-                            movie.isFavourite = it
-                            onFavouriteClick(movie)
-                            checked = it
-                        }
-                    ) {
-                        val tint by animateColorAsState(if (checked) Color(0xFFEC407A) else Color(0xFFB0BEC5))
-                        Icon(
-                            imageVector = Icons.Filled.Favorite,
-                            contentDescription = stringResource(id = R.string.add_to_favourite),
-                            tint = tint
-                        )
+            Image(
+                painter = rememberImagePainter(
+                    data = movie.coverUrl,
+                    builder = {
+                        crossfade(true)
                     }
-                }
+                ),
+                modifier = Modifier.matchParentSize(),
+                contentScale = ContentScale.Crop,
+                contentDescription = movie.name
+            )
 
-                Text(
-                    text = movie.name,
-                    modifier = Modifier
-                        .width(contentWidth)
-                        .padding(2.dp),
-                    textAlign = TextAlign.Center,
-                    style = MaterialTheme.typography.caption,
-                    color = MaterialTheme.colors.primary,
-                    overflow = TextOverflow.Ellipsis,
-                    maxLines = 1
+            var checked by remember { mutableStateOf(movie.isFavourite) }
+            IconToggleButton(
+                modifier = Modifier.align(Alignment.TopEnd),
+                checked = checked,
+                onCheckedChange = {
+                    movie.isFavourite = it
+                    onFavouriteClick(movie)
+                    checked = it
+                }
+            ) {
+                val tint by animateColorAsState(
+                    if (checked) Color(0xFFEC407A) else Color(
+                        0xFFB0BEC5
+                    )
+                )
+                Icon(
+                    imageVector = Icons.Filled.Favorite,
+                    contentDescription = stringResource(id = R.string.add_to_favourite),
+                    tint = tint
                 )
             }
         }
